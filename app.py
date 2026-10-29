@@ -8,7 +8,7 @@ import streamlit.components.v1 as components
 # =========================================================
 # CẤU HÌNH TRANG & GIAO DIỆN CAO CẤP (PRO UI/UX)
 # =========================================================
-BACKEND_URL = "http://127.0.0.1:8000"
+BACKEND_URL = "https://driver-ynpg.onrender.com"
 st.set_page_config(
     page_title="Hệ Thống Đào Tạo Lái Xe AI Pro",
     page_icon="🚗",
@@ -935,14 +935,14 @@ if not st.session_state.logged_in:
 # =========================================================
 # CÁC HÀM GỌI BACKEND API
 # =========================================================
-BACKEND_URL = "http://127.0.0.1:8000"
+BACKEND_URL = "https://driver-ynpg.onrender.com"
 def api_get(endpoint, params=None):
     try:
         response = requests.get(f"{BACKEND_URL}{endpoint}", params=params, timeout=15)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.ConnectionError:
-        st.error("❌ Không thể kết nối đến Backend (`http://127.0.0.1:8000`). Hãy đảm bảo server FastAPI đã khởi động!")
+        st.error("❌ Không thể kết nối đến Backend (`https://driver-ynpg.onrender.com`). Hãy đảm bảo server FastAPI đã khởi động!")
         return None
     except Exception:
         return None
