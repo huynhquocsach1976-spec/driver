@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 import psycopg2
 from psycopg2.extras import RealDictCursor
-
+from datetime import date, datetime
 load_dotenv()
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
