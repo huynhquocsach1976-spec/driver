@@ -1,0 +1,19 @@
+# render.yaml - Deploy tu dong backend FastAPI len Render
+# Dat file nay trong thu muc goc cua backend (cung thu muc voi main.py)
+services:
+  - type: web
+    name: driving-school-backend
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      # API key cho Gemini AI (lay tu https://aistudio.google.com)
+      - key: GEMINI_API_KEY
+        sync: false
+      # Chuoi ket noi PostgreSQL - lay tu Neon (https://neon.tech) free tier
+      # Vi du: postgresql://user:pass@ep-xxx.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
+      - key: DATABASE_URL
+        sync: false
