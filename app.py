@@ -817,6 +817,17 @@ def api_error_detail(response):
         return (response.text or "Máy chủ không trả về nội dung.")[:600]
 
 
+def show_api_error(res, exc, title="❌ Lỗi"):
+    """Hiện lỗi chi tiết từ backend; nhận diện lỗi thiếu bảng trong database."""
+    if res is not None and getattr(res, "status_code", 0) >= 400:
+        message = f"Máy chủ từ chối ({res.status_code}): {api_error_detail(res)}"
+    else:
+        message = str(exc)
+    st.error(f"{title}: {message}")
+    if "does not exist" in message:
+        st.warning("👉 Database trên Render chưa có bảng hoặc cột này. Hãy nạp cấu trúc bảng vào database rồi khởi động lại backend.")
+
+
 def get_students(params=None):
     res = api_get("/students/management", params)
     return res.get("data", []) if res else []
@@ -1141,13 +1152,14 @@ elif menu == "👨‍🏫 Quản lý giáo viên":
                         "license_number": t_license.strip() or None,
                         "status": "active"
                     }
+                    res = None
                     try:
                         res = requests.post(f"{BACKEND_URL}/teachers", json=payload, timeout=10)
                         res.raise_for_status()
                         st.success("✅ Thêm giáo viên thành công!")
                         st.rerun()
                     except Exception as e:
-                        st.error(f"Lỗi: {e}")
+                        show_api_error(res, e)
                 else:
                     st.warning("Vui lòng nhập Mã giáo viên và Họ tên.")
 
@@ -1199,13 +1211,14 @@ elif menu == "🚗 Quản lý xe":
                         "year": int(v_year),
                         "status": "active"
                     }
+                    res = None
                     try:
                         res = requests.post(f"{BACKEND_URL}/vehicles", json=payload, timeout=10)
                         res.raise_for_status()
                         st.success("✅ Thêm xe thành công!")
                         st.rerun()
                     except Exception as e:
-                        st.error(f"Lỗi: {e}")
+                        show_api_error(res, e)
                 else:
                     st.warning("Vui lòng nhập biển số xe.")
 
@@ -1294,13 +1307,14 @@ elif menu == "📚 Lịch học & Buổi học":
                     "lesson_type": l_type.strip(),
                     "content": l_content.strip() or None
                 }
+                res = None
                 try:
                     res = requests.post(f"{BACKEND_URL}/lessons", json=payload, timeout=10)
                     res.raise_for_status()
                     st.success("✅ Xếp lịch buổi học thành công!")
                     st.rerun()
                 except Exception as e:
-                    st.error(f"❌ Lỗi xếp lịch: {e}")
+                    show_api_error(res, e)
 
     section_header("📋 Lịch trình các buổi học gần đây")
     if not lessons:
@@ -1421,13 +1435,14 @@ elif menu == "💰 Quản lý học phí":
                                     "payment_method": method_pay,
                                     "note": note_pay or None
                                 }
+                                pres = None
                                 try:
                                     pres = requests.post(f"{BACKEND_URL}/payments", json=p_payload, timeout=10)
                                     pres.raise_for_status()
                                     st.success("✅ Ghi nhận thanh toán thành công!")
                                     st.rerun()
                                 except Exception as e:
-                                    st.error(f"Lỗi: {e}")
+                                    show_api_error(pres, e)
 
 # =========================================================
 # 8. TRỢ LÝ AI TRUNG TÂM
