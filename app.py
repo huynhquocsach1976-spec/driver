@@ -46,7 +46,7 @@ html, body, [class*="css"], .stApp {
     -webkit-font-smoothing: antialiased;
 }
 .stApp {
-    background: linear-gradient(180deg, #e8eef6 0%, #f4f7fb 340px);
+    background: #f4f7fb;
 }
 .main .block-container,
 div[data-testid="stMainBlockContainer"] {
@@ -85,20 +85,9 @@ button[aria-label*="Manage app" i],
 a[aria-label*="Manage app" i],
 a[href*="manage-app"],
 [class*="viewerBadge"],
-[class*="_terminalButton_"],
-[class*="_profileContainer_"] {
+[class*="_terminalButton_"] {
     display: none !important;
 }
-/* iframe tiện ích (0px) không chiếm chỗ */
-div[data-testid="stElementContainer"]:has(iframe),
-div.element-container:has(iframe) {
-    height: 0 !important;
-    min-height: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow: hidden;
-}
-
 /* Nút mở lại sidebar khi đã thu gọn */
 [data-testid="stExpandSidebarButton"],
 [data-testid="stSidebarCollapsedControl"] button,
@@ -188,9 +177,6 @@ section[data-testid="stSidebar"] div[role="radiogroup"] label {
     border-radius: 10px;
     transition: all 0.2s ease;
     cursor: pointer;
-}
-section[data-testid="stSidebar"] div[role="radiogroup"] label > div:first-child {
-    display: none;
 }
 section[data-testid="stSidebar"] div[role="radiogroup"] label p {
     font-size: 13.5px;
@@ -319,21 +305,7 @@ div[data-testid="stMetricValue"] {
     color: var(--text) !important;
 }
 
-/* ---------- KHUNG THẺ (st.container có viền) ---------- */
-div[data-testid="stVerticalBlockBorderWrapper"] {
-    background: #ffffff;
-    border: 1px solid var(--border) !important;
-    border-radius: 16px !important;
-    box-shadow: 0 6px 18px -12px rgba(15, 23, 42, 0.2);
-    transition: box-shadow 0.2s ease, border-color 0.2s ease;
-}
-div[data-testid="stVerticalBlockBorderWrapper"]:hover {
-    border-color: #bfdbfe !important;
-    box-shadow: 0 14px 28px -14px rgba(37, 99, 235, 0.32);
-}
-div[data-testid="stVerticalBlockBorderWrapper"] div[data-testid="stVerticalBlockBorderWrapper"] {
-    box-shadow: none;
-}
+/* Khung thẻ: dùng viền mặc định của st.container(border=True), không ghi đè selector toàn cục */
 
 /* ---------- DÒNG DANH SÁCH ---------- */
 .row-flex {
@@ -672,10 +644,19 @@ HIDE_MANAGE_APP_JS = """
 </script>
 """
 
-if hasattr(st, "iframe"):
-    st.iframe(HIDE_MANAGE_APP_JS.strip(), height=1)
-elif components is not None:
-    components.html(HIDE_MANAGE_APP_JS, height=0)
+# Đổi thành True nếu muốn thử ẩn nút "Manage app" bằng JS (mặc định tắt cho an toàn)
+ENABLE_MANAGE_APP_HIDER = False
+
+if ENABLE_MANAGE_APP_HIDER:
+    st.markdown(
+        "<style>div[data-testid='stElementContainer']:has(iframe)"
+        "{height:0 !important;margin:0 !important;overflow:hidden;}</style>",
+        unsafe_allow_html=True
+    )
+    if hasattr(st, "iframe"):
+        st.iframe(HIDE_MANAGE_APP_JS.strip(), height=1)
+    elif components is not None:
+        components.html(HIDE_MANAGE_APP_JS, height=0)
 
 
 # =========================================================
