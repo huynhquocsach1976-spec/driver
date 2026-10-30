@@ -807,6 +807,16 @@ def api_get(endpoint, params=None):
         return None
 
 
+def api_error_detail(response):
+    """Lấy nội dung lỗi mà backend trả về (trường detail hoặc nội dung thô)."""
+    try:
+        data = response.json()
+        detail = data.get("detail", data) if isinstance(data, dict) else data
+        return str(detail)[:600]
+    except Exception:
+        return (response.text or "Máy chủ không trả về nội dung.")[:600]
+
+
 def get_students(params=None):
     res = api_get("/students/management", params)
     return res.get("data", []) if res else []
@@ -983,11 +993,16 @@ elif menu == "👨‍🎓 Quản lý học viên":
                         "status": "Đang học",
                         "teacher_id": int(s_teacher["id"]) if s_teacher else None
                     }
+                    res = None
                     try:
-                        res = requests.post(f"{BACKEND_URL}/students", json=payload, timeout=10)
+                        res = requests.post(f"{BACKEND_URL}/students", json=payload, timeout=30)
                         res.raise_for_status()
                         st.success("✅ Thêm học viên thành công!")
                         st.rerun()
+                    except requests.exceptions.HTTPError:
+                        st.error(f"❌ Máy chủ từ chối ({res.status_code}): {api_error_detail(res)}")
+                        with st.expander("🔍 Dữ liệu đã gửi lên máy chủ (để kiểm tra)"):
+                            st.json(payload)
                     except Exception as e:
                         st.error(f"❌ Lỗi khi thêm học viên: {e}")
                 else:
