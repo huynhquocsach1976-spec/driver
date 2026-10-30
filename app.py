@@ -101,6 +101,33 @@ header button[kind="header"] {
     visibility: visible !important;
     pointer-events: auto !important;
 }
+/* ===== AN nut Manage App / hamburger / cac nut rac cua Streamlit (van giu nut mo sidebar) ===== */
+[data-testid="stToolbar"],
+[data-testid="stMainMenu"],
+[data-testid="stDeployButton"],
+[data-testid="stStatusWidget"],
+[data-testid="manage-app-button"],
+[data-testid="stToolbarActions"],
+[data-testid="stHeaderActionElements"],
+a[aria-label*="Manage" i],
+button[aria-label*="Manage" i],
+a[href*="manage-app"],
+a[href*="streamlit.io"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+/* Dam bao nut mo lai sidebar van hien (khong bi an nham) */
+[data-testid="collapsedControl"],
+[data-testid="stSidebarCollapsedControl"],
+[data-testid="collapsedControl"] button,
+[data-testid="stSidebarCollapsedControl"] button {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
 /* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
