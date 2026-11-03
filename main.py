@@ -4793,3 +4793,47 @@ def db_info():
     except Exception as e:
         info["error"] = str(e)
     return info
+    # =========================================================
+# TẠO BẢNG TỰ ĐỘNG BẰNG CHÍNH KẾT NỐI CỦA BACKEND (DÙNG TẠM, XÓA SAU KHI XONG)
+# =========================================================
+
+import pathlib
+from urllib.parse import urlparse
+
+
+@app.get("/init-db")
+def init_db():
+    u = urlparse(DATABASE_URL)
+    info = {
+        "host": u.hostname,
+        "port": u.port,
+        "database": (u.path or "/").lstrip("/"),
+        "user": u.username,
+    }
+
+    schema_file = pathlib.Path(__file__).with_name("schema_draft.sql")
+    if not schema_file.exists():
+        raise HTTPException(
+            status_code=500,
+            detail="Không tìm thấy file schema_draft.sql cạnh main.py. Hãy upload file này lên GitHub cùng thư mục với main.py."
+        )
+
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute(schema_file.read_text(encoding="utf-8"))
+        conn.commit()
+
+        cur.execute(
+            "SELECT table_name FROM information_schema.tables "
+            "WHERE table_schema = 'public' ORDER BY table_name"
+        )
+        info["public_tables"] = [r[0] for r in cur.fetchall()]
+
+        cur.close()
+        conn.close()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Lỗi khi tạo bảng: {e}")
+
+    info["message"] = "Đã tạo bảng thành công trong database mà backend đang dùng"
+    return info
