@@ -4769,3 +4769,27 @@ def get_students_management(
     finally:
 
         conn.close()
+from urllib.parse import urlparse
+
+@app.get("/db-info")
+def db_info():
+    u = urlparse(DATABASE_URL)
+    info = {
+        "host": u.hostname,
+        "port": u.port,
+        "database": (u.path or "/").lstrip("/"),
+        "user": u.username,
+    }
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT table_name FROM information_schema.tables "
+            "WHERE table_schema = 'public' ORDER BY table_name"
+        )
+        info["public_tables"] = [r[0] for r in cur.fetchall()]
+        cur.close()
+        conn.close()
+    except Exception as e:
+        info["error"] = str(e)
+    return info
